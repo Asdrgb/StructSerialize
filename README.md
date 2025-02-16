@@ -1,2 +1,5 @@
 # StructSerialize
-Qt struct serialize
+Qt struct serialization
+
+## reference
+https://github.com/netcan/config-loader
