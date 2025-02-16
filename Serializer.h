@@ -6,11 +6,13 @@
 #include <utility>
 #include <cstddef>
 #include <bitset>
+#include <vector>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QString>
+
 
 #define PP_THIRD_ARG(a, b, c, ...) c
 #define VA_OPT_SUPPORTED_I(...) PP_THIRD_ARG(__VA_OPT__(, ), 1, 0, )
@@ -153,10 +155,49 @@
 #define CONCATE(x, y) x ## y
 #define STRING(x) EXPAND(STR(x))
 #define PARE(...) __VA_ARGS__
+#define PARE_P(...) __VA_ARGS__ _
 #define EAT(...)
 #define PAIR(x) PARE x // PAIR((int) x) => PARE(int) x => int x
+#define PAIR_P(x) PAIR(x ## _)
 #define STRIP(x) EXPAND(EAT x) // STRIP((int) x) => EAT(int) x => x
 #define PASTE(x, y) CONCATE(x, y)
+
+#define EXPAND_ARG_LIST_0
+#define EXPAND_ARG_LIST_1(arg, ...)    PAIR_P(arg)
+#define EXPAND_ARG_LIST_2(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_1(__VA_ARGS__))
+#define EXPAND_ARG_LIST_3(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_2(__VA_ARGS__))
+#define EXPAND_ARG_LIST_4(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_3(__VA_ARGS__))
+#define EXPAND_ARG_LIST_5(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_4(__VA_ARGS__))
+#define EXPAND_ARG_LIST_6(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_5(__VA_ARGS__))
+#define EXPAND_ARG_LIST_7(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_6(__VA_ARGS__))
+#define EXPAND_ARG_LIST_8(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_7(__VA_ARGS__))
+#define EXPAND_ARG_LIST_9(arg, ...)    PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_8(__VA_ARGS__))
+#define EXPAND_ARG_LIST_10(arg, ...)   PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_9(__VA_ARGS__))
+#define EXPAND_ARG_LIST_11(arg, ...)   PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_10(__VA_ARGS__))
+#define EXPAND_ARG_LIST_12(arg, ...)   PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_11(__VA_ARGS__))
+#define EXPAND_ARG_LIST_13(arg, ...)   PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_12(__VA_ARGS__))
+#define EXPAND_ARG_LIST_14(arg, ...)   PAIR_P(arg), EXPAND(EXPAND_ARG_LIST_13(__VA_ARGS__))
+
+#define EXPAND_ARG_ALL(...) EXPAND(PASTE(EXPAND_ARG_LIST_, GET_ARG_COUNT(__VA_ARGS__)) (__VA_ARGS__))
+
+#define COPY_CONSTRUCTOR_0
+#define COPY_CONSTRUCTOR_1(arg,...)  STRIP(arg) = STRIP(arg ## _);
+#define COPY_CONSTRUCTOR_2(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_1(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_3(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_2(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_4(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_3(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_5(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_4(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_6(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_5(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_7(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_6(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_8(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_7(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_9(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_8(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_10(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_9(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_11(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_10(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_12(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_11(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_13(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_12(__VA_ARGS__))
+#define COPY_CONSTRUCTOR_14(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_13(__VA_ARGS__))
+
+
+#define COPY_CONSTRUCTOR_ALL(...) EXPAND(PASTE(COPY_CONSTRUCTOR_, GET_ARG_COUNT(__VA_ARGS__)) (__VA_ARGS__))
 
 
 #define FIELD_EACH(i, arg)                     \
@@ -180,20 +221,29 @@
         template <typename, size_t> struct FIELD;                                       \
         static constexpr size_t _field_count_ = GET_ARG_COUNT(__VA_ARGS__);             \
         static constexpr decltype(#st) _struct_name_ = #st;                             \
-        bool serialize(QJsonObject& json)                                                \
+        bool serialize(QJsonObject& json)                                               \
         {                                                                               \
-            return struct_serialize::Serialize<st>(*this, json);                         \
+            return struct_serialize::Serialize<st>(*this, json);                        \
         }                                                                               \
-        bool serialize(QString& json)                                                    \
+        bool serialize(QString& json)                                                   \
         {                                                                               \
-            return struct_serialize::Serialize<st>(*this, json);                         \
+            return struct_serialize::Serialize<st>(*this, json);                        \
         }                                                                               \
-        bool deserialize(QJsonObject& json)                                              \
+        bool deserialize(QJsonObject& json)                                             \
         {                                                                               \
-            return struct_serialize::Deserialize<st>(json, *this);                       \
+            return struct_serialize::Deserialize<st>(json, *this);                      \
+        }                                                                               \
+        st()                                                                            \
+        {                                                                               \
+            struct_serialize::GeneralInit<st>::Init(*this,"");                          \
+        }                                                                               \
+        st(EXPAND_ARG_ALL(__VA_ARGS__))                                                 \
+        {                                                                               \
+            COPY_CONSTRUCTOR_ALL(__VA_ARGS__)                                           \
         }                                                                               \
         EXPAND(PASTE(REPEAT_, GET_ARG_COUNT(__VA_ARGS__)) (FIELD_EACH, 0, __VA_ARGS__)) \
     }                                                                                   \
+
 
 #if __cplusplus >= 201703L
 
@@ -276,6 +326,38 @@ constexpr static bool IsString_v = IsString<T>::value;
 
 template<typename T, typename = void>
 struct BaseSerializeTraits : IsSupport<false> {};
+
+template<typename T, typename = void>
+struct BaseInit : IsSupport<false>
+{
+    static void Init(T& obj, const char* fieldName)
+    {
+        (void)obj;
+        (void)fieldName;
+    }
+};
+
+template<typename T>
+struct BaseInit<T, typename std::enable_if<std::is_arithmetic<T>::value>::type>
+    : IsSupport<true>
+{
+    static void Init(T& obj, const char* fieldName)
+    {
+        (void)fieldName;
+        obj = 0;
+    }
+};
+
+template<typename T>
+struct BaseInit<T, typename std::enable_if<IsString_v<T>>::type>
+    : IsSupport<true>
+{
+    static void Init(T& obj, const char* fieldName)
+    {
+        (void)fieldName;
+        obj = "";
+    }
+};
 
 
 template<typename T>
@@ -385,6 +467,13 @@ struct BaseSerializeTraits<T, typename std::enable_if<IsString_v<T>>::type>
 template<typename T, typename = void>
 struct GeneralSerializeTraits {};
 
+template<typename T, typename = void>
+struct GeneralInit {};
+
+template<typename T>
+struct GeneralInit <T, typename std::enable_if<BaseInit<T>::isSupport>::type>
+    :BaseInit<T>
+{};
 
 template<typename T>
 struct GeneralSerializeTraits <T, typename std::enable_if<BaseSerializeTraits<T>::isSupport>::type>
@@ -474,6 +563,20 @@ template<typename T>
 struct GeneralSerializeTraits <std::vector<T>> :ContainerSerializeTraits<std::vector<T>> {};
 
 
+template<typename T>
+struct GeneralInit<T, typename std::enable_if<IsReflected_v<T>>::type>
+{
+    static void Init(T& obj,const char *fieldName)
+    {
+        (void)fieldName;
+        forEach(obj,
+            [&](auto&& _fieldName, auto&& value)
+            {
+                BaseInit<std::decay_t<decltype(value)>>::Init(value, _fieldName);// only bool,number,string
+            }
+        );
+    }
+};
 
 
 template<typename T>
