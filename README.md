@@ -1,0 +1,2 @@
+# StructSerialize
+Qt struct serialize
