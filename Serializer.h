@@ -182,15 +182,15 @@
         static constexpr decltype(#st) _struct_name_ = #st;                             \
         bool serialize(QJsonObject& json)                                                \
         {                                                                               \
-            return struct_serialize::Serializ<st>(*this, json);                         \
+            return struct_serialize::Serialize<st>(*this, json);                         \
         }                                                                               \
         bool serialize(QString& json)                                                    \
         {                                                                               \
-            return struct_serialize::Serializ<st>(*this, json);                         \
+            return struct_serialize::Serialize<st>(*this, json);                         \
         }                                                                               \
         bool deserialize(QJsonObject& json)                                              \
         {                                                                               \
-            return struct_serialize::Deserializ<st>(json, *this);                       \
+            return struct_serialize::Deserialize<st>(json, *this);                       \
         }                                                                               \
         EXPAND(PASTE(REPEAT_, GET_ARG_COUNT(__VA_ARGS__)) (FIELD_EACH, 0, __VA_ARGS__)) \
     }                                                                                   \
@@ -284,6 +284,7 @@ struct BaseSerializeTraits<T, typename std::enable_if<std::is_arithmetic_v<T>>::
 {
     static T Dump(T& obj, bool &ret, const char* fieldName) 
     {
+        (void)fieldName;
         ret = true;
         return obj;
     }
@@ -338,12 +339,14 @@ struct BaseSerializeTraits<T, typename std::enable_if<IsString_v<T>>::type>
 {
     static QString Dump(std::string& obj, bool& ret, const char* fieldName)
     {
+        (void)fieldName;
         ret = true;
         return QString::fromStdString(obj);
     }
 
     static QString Dump(QString& obj, bool& ret, const char* fieldName)
     {
+        (void)fieldName;
         ret = true;
         return obj;
     }
@@ -394,6 +397,7 @@ struct ContainerSerializeTraits
 {
     static QJsonArray Dump(Container& obj, bool& ret, const char* fieldName)
     {
+        (void)fieldName;
         QJsonArray array;
         for (auto &&elem : obj)
         {
@@ -477,6 +481,7 @@ struct GeneralSerializeTraits<T, typename std::enable_if<IsReflected_v<T>>::type
 {
     static QJsonObject Dump(T &obj, bool &ret, const char* fieldName)
     {
+        (void)fieldName;
         std::bitset<T::_field_count_> results;
         int index = 0;
         QJsonObject json;
@@ -528,7 +533,7 @@ struct GeneralSerializeTraits<T, typename std::enable_if<IsReflected_v<T>>::type
 
 
 template <typename T>
-bool Serializ(T &obj, QJsonObject &json)
+bool Serialize(T &obj, QJsonObject &json)
 {
     if (IsReflected_v<T>)
     {
@@ -540,7 +545,7 @@ bool Serializ(T &obj, QJsonObject &json)
 }
 
 template <typename T>
-bool Serializ(T& obj, QString& json)
+bool Serialize(T& obj, QString& json)
 {
     if (IsReflected_v<T>)
     {
@@ -553,7 +558,7 @@ bool Serializ(T& obj, QString& json)
 }
 
 template<typename T>
-bool Deserializ(QJsonObject &json, T &obj)
+bool Deserialize(QJsonObject &json, T &obj)
 {
     if (IsReflected_v<T>)
     {
