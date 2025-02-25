@@ -180,6 +180,21 @@
 
 #define EXPAND_ARG_ALL(...) EXPAND(PASTE(EXPAND_ARG_LIST_, GET_ARG_COUNT(__VA_ARGS__)) (__VA_ARGS__))
 
+
+#define EXPAND_MEMBER_LIST_0
+#define EXPAND_MEMBER_LIST_1(arg,...)  STRIP(arg){}
+#define EXPAND_MEMBER_LIST_2(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_1(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_3(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_2(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_4(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_3(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_5(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_4(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_6(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_5(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_7(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_6(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_8(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_7(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_9(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_8(__VA_ARGS__))
+#define EXPAND_MEMBER_LIST_10(arg,...)  STRIP(arg){}, EXPAND(EXPAND_MEMBER_LIST_9(__VA_ARGS__))
+
+#define MEMBER_INIT_LIST(...) EXPAND(PASTE(EXPAND_MEMBER_LIST_, GET_ARG_COUNT(__VA_ARGS__)) (__VA_ARGS__))
+
 #define COPY_CONSTRUCTOR_0
 #define COPY_CONSTRUCTOR_1(arg,...)  STRIP(arg) = STRIP(arg ## _);
 #define COPY_CONSTRUCTOR_2(arg,...)  STRIP(arg) = STRIP(arg ## _); EXPAND(COPY_CONSTRUCTOR_1(__VA_ARGS__))
@@ -233,9 +248,8 @@
         {                                                                               \
             return struct_serialize::Deserialize<st>(json, *this);                      \
         }                                                                               \
-        st()                                                                            \
+        st():MEMBER_INIT_LIST(__VA_ARGS__)                                              \
         {                                                                               \
-            struct_serialize::GeneralInit<st>::Init(*this,"");                          \
         }                                                                               \
         st(EXPAND_ARG_ALL(__VA_ARGS__))                                                 \
         {                                                                               \
